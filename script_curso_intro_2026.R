@@ -101,5 +101,22 @@ rm()
 
 ############################################
 
+# Acceso a elementos
 
+tabla1 <- data.frame (var1=c(4,5,3),
+var2=c("a","b","c"), 
+var3 = c("gen1","gen2", "gen3" ))
+
+tabla1$"var3"
+tabla1[ , c(3)]
+
+
+
+
+
+tabla1$"var3"[c(1)]
+tabla1[ c(2,3), c(2,3)]
+
+
+subtabla <- tabla1[ c(2,3), c(2,3)]
 
