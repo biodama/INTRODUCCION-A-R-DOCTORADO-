@@ -113,10 +113,44 @@ tabla1[ , c(3)]
 
 
 
-
 tabla1$"var3"[c(1)]
 tabla1[ c(2,3), c(2,3)]
 
 
 subtabla <- tabla1[ c(2,3), c(2,3)]
 
+#importación
+#ruta absoluta
+read.table(file="C:\\Users\\mario.gonzalez\\Desktop\\INTRODUCCION-A-R-DOCTORADO--main\\datos\\datos.curso1.txt", header = TRUE, sep= "\t")
+read.table(file="C:/Users/mario.gonzalez/Desktop/INTRODUCCION-A-R-DOCTORADO--main/datos/datos.curso1.txt", header = TRUE, sep= "\t")
+
+#ruta relativa cambiando el directorio de trabajo
+read.table(file="datos.curso1.txt", header = TRUE, sep= "\t")
+
+#creacción de objeto con los datos contenidos en datos.curso1.txt
+mis_datos <- read.table(file="datos.curso1.txt", header = TRUE, sep= "\t")
+
+#cargar uno o varios objetos contenidos en este RData
+load(file="datos.curso1.RData")
+
+#importar dataframe desde un paquete
+install.packages("airqualityES")
+library("airqualityES")
+
+#importa la base de datos del paquete airqualityES a nuestra sesión de R
+data(airquality)
+
+#visualiza los primeros 5 registros por arriba
+head(airquality)
+
+#visualiza los primeros 5 registros por arriba
+tail(airquality)
+
+#muestra las dimensiones de la base de datos
+dim(airquality)
+
+#Exportación de un data.frame
+write.table(x=airquality, file="aiquality.exportado.txt",sep="\t",row.names=F,quote=F)
+
+#Exporta todo el workspace. En este caso 3 objetos en un unico fichero RData.
+save.image(file = "un_fichero_con_3_objetos.RData")
