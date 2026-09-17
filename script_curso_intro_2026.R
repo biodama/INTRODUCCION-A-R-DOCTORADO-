@@ -108,6 +108,7 @@ var2=c("a","b","c"),
 var3 = c("gen1","gen2", "gen3" ))
 
 tabla1$"var3"
+
 tabla1[ , c(3)]
 
 
@@ -124,14 +125,18 @@ subtabla <- tabla1[ c(2,3), c(2,3)]
 ################################################
 
 #ruta absoluta
-read.table(file="C:\\Users\\mario.gonzalez\\Desktop\\INTRODUCCION-A-R-DOCTORADO--main\\datos\\datos.curso1.txt", header = TRUE, sep= "\t")
-read.table(file="C:/Users/mario.gonzalez/Desktop/INTRODUCCION-A-R-DOCTORADO--main/datos/datos.curso1.txt", header = TRUE, sep= "\t")
+datos <- read.table(file="C:\\Users\\mario.gonzalez\\Desktop\\INTRODUCCION-A-R-DOCTORADO--main\\datos\\datos.curso1.txt", header = TRUE, sep= "\t")
+
+datos <- read.table(file="C:/Users/mario.gonzalez/Desktop/INTRODUCCION-A-R-DOCTORADO--main/datos/datos.curso1.txt", header = TRUE, sep= "\t")
 
 #ruta relativa cambiando el directorio de trabajo
-read.table(file="datos.curso1.txt", header = TRUE, sep= "\t")
+datos <- read.table(file="datos.curso1.txt", header = TRUE, sep= "\t")
 
 #creacción de objeto con los datos contenidos en datos.curso1.txt
 mis_datos <- read.table(file="datos.curso1.txt", header = TRUE, sep= "\t")
+
+
+
 
 #cargar uno o varios objetos contenidos en este RData
 load(file="datos.curso1.RData")
@@ -250,9 +255,11 @@ fix(datos) # CUIDADOOOOOOO!!!!!!!!
 
 # Subset
 
-datos.mujer <- datos[datos$sexo=="Mujer" , c("ID","edad","sexo")]
+datos.mujer <- datos[datos$sexo=="Mujer"  ,  c("ID","edad","sexo")]
 
 datos.mujer<-subset(datos , sexo=="Mujer", select=c("ID","edad","sexo"))
+
+
 
 # names
 
@@ -469,5 +476,90 @@ table(duplicated(datos$"ID_completo"))
 table(duplicated(datos$"ID"))
 
 datos$"ID_completo" <- apply(datos[,-1], 1, paste, collapse = "_")
+
+#########################
+####### Data.table #####
+#########################
+
+library("data.table")
+
+datos[,
+.( media_edad= mean(edad,na.rm=T),media_peso=mean(peso,na.rm=T) ),
+ by=sexo]
+
+
+DF = data.frame(
+id = c("Luke Skywalker","Darth Vader","Leia Organa","C-3PO","R2-D2"),
+peso = c(77, 136, 49, 75, 32),
+altura = c(172, 202, 150, 167, 96),
+especie= c("Humana","Humana","Humana","Droid","Droid"))
+
+DT=data.table(DF)
+
+datos<-datos[,1:11]
+load("datos.curso1.RData")
+
+datos_dt<-data.table(datos)
+
+datos_dt[1:10]
+datos_dt[1:10,]
+
+datos[datos$edad>50 & datos$sexo%in%"Mujer" & datos$estado.civil=="Casado",    ]
+
+datos_dt[edad>50 & sexo=="Mujer" & estado.civil=="Casado"]
+ans<-datos_dt[order(peso)] #Ordena de menor a mayor
+ans<-datos_dt[order(peso, -sexo)] #Ordena de menos a mayor y los caracteres en inverso del alfabeto (-)
+ans<-datos_dt[order(peso, altura)]
+
+ans<-datos_dt[,sexo]
+
+ans<-datos_dt[,.(ID,sexo,edad,peso,altura)]
+
+ans<-datos_dt[,.(habito.tab=fumador, estatus.diab=diabetes)]
+datos$habito.tab<-datos$fumador
+
+datos_dt[ ,imc := peso/(altura/100)^2] #Calculo del índice de masa corporal
+
+datos_dt[,exc.imc := imc/mean(imc), by=nivel.estudios]
+
+datos_dt[,exc.imc_2 := imc/mean(imc)]
+datos_dt[,1:4]
+
+
+datos_dt[,exc.imc_3 := imc/mean(imc),by=.(sexo,estado.civil,nivel.estudios)]
+
+datos_dt[,exc.imc_3 := imc/mean(imc),by=.(sexo,estado.civil,nivel.estudios)]
+
+datos_sub<-subset(datos_dt,sexo%in%"Mujer", select=c("ID","peso","altura","sexo"))
+
+datos_sub2<-subset(datos_dt,peso>60, select=c("ID","edad","cancer.mama","estado.civil"))
+
+DF1=data.table(id="Luke Skywalker",altura=172,color.ojos="azul")
+DF2=data.table(id="Darth Vader",altura=202,color.ojos="amarillo")
+DF3=data.table(id="Leia Organa",altura=150,color.ojos="marrón")
+
+
+datos.hombres=subset(datos,sexo=="Hombre",select=c(sexo,peso))
+str(datos.hombres)
+
+datos.mujeres=subset(datos,sexo=="Mujer",select=c(sexo,peso))
+str(datos.mujeres)
+
+rbind(datos.hombres,datos.mujeres)
+
+
+datos.mujeres=subset(datos,sexo=="Mujer",select=c(sexo,edad))
+str(datos.mujeres)
+
+rbind(datos.hombres,datos.mujeres) #Unión de filas
+
+DF1=data.table(id=c("C-3PO","R2-D2","Chewbacca"),altura=c(167,96,228))
+DF2=data.table(id=c("C-3PO","R2-D2"), peso=c(75,32))
+
+merge(DF1,DF2,by="id") # Incluye en la base de datos solo aquellos registros comunes
+merge(DF1,DF2,by="id",all.x=T,all.y=T,sort=F)   # Incluye todas las bases de datos todos los registros y genera missing donde no haya datos
+
+merge(socio.demo,basal,by=“ID”,all=TRUE)
+
 
 
