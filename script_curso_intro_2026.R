@@ -338,3 +338,136 @@ datos_sin_missing <- datos[ !is.na(datos$"sexo") & !is.na(datos$"edad")   ,     
 
 datos_ordenados <- datos_sin_missing [ order(datos_sin_missing$"ID")  ,           ]
 datos_ordenados <- datos_sin_missing [order(datos_sin_missing$"sexo",datos_sin_missing$"estado.civil") ,  ]
+
+
+#############################################
+# Recodificacion
+#############################################
+
+rm(list=ls()) 
+gc()
+
+setwd("/Users/pfernandezn/Desktop/INTRODUCCION_R_DOCTORADO/DATOS/")
+
+load("datos.curso1.RData")
+
+
+
+# Variable numerica a categorica
+
+# 0 20 40 60 80
+# seq(0,80,20)
+# c(0,20,40,60,80)
+range(datos$"edad")datos$"gr.edad" <- cut(x=datos$"edad", breaks=seq(0,80,20),right=F,include.lowest=T)
+datos$"gr.edad" <- cut(x=datos$"edad", breaks=c(0,20,40,60,80),right=F,include.lowest=T)
+
+datos$"gr.edad" <- cut(x=datos$"edad", breaks=c(0,20,40,60,85),right=F,include.lowest=T)
+
+class(datos$"gr.edad")levels(datos$"gr.edad")table(datos$"gr.edad",exclude=NULL)
+
+
+# Cambiar los valores de una variable
+
+
+class(datos$"estado.civil") # tiene que se tipo character
+table(datos$"estado.civil")
+
+datos$"estado.civil"[datos$"estado.civil"=="Casado"] <- "cas" # recodificacion vectorial
+
+datos[datos$"estado.civil"=="Casado" , c("estado.civil")] <- "cas" # recodificacion matricial
+
+
+datos$"estado.civil.recod"<-as.factor(datos$"estado.civil")
+class(datos$"estado.civil.recod")
+levels(datos$"estado.civil.recod") <- c( "cas"  ,  "div", "sol" ) 
+levels(datos$"estado.civil.recod")
+table(datos$"estado.civil.recod")
+
+#################################################
+# FECHAS
+#################################################
+
+rm(list=ls()) 
+gc()
+
+load('~/Desktop/INTRODUCCION_R_DOCTORADO/DATOS/datos.curso1.con.fechas.RData')
+
+# fecha en formato que le gusta a R
+
+datos$"fechaCM"<- as.Date(datos$"fdiag_cm")
+
+datos$"fechaCM"<- as.Date(datos$"fdiag_cm",format="%Y-%m-%d")
+
+# fecha en formato que no le gusta a R (ejemplo 1)
+
+datos$"fdiag_cp"[c(3,4)]
+# "17.06.96" "12.08.06"
+
+?strptime # nos dice que tenemos que poner en format
+
+datos$"fechaCP" <- as.Date(datos$"fdiag_cp", format="%d.%m.%y")
+
+
+# fecha en formato que no le gusta a R (ejemplo 2)
+
+datos$fechas.DF <- as.Date(datos$"fdef",format="%Y.%m.%d")
+
+
+table(datos$"fdiag_cm")
+
+
+#################################################
+# Caracteres
+#################################################
+
+table(nchar(datos$"fdiag_cm"),exclude=NULL) # exclude es para ver los missing
+
+unique(unlist(strsplit(datos$"fdiag_cm",split="")))
+
+library(plyr)
+ldply(strsplit(datos$"fdiag_cm"[!is.na(datos$"fdiag_cm")],split="-"))
+
+
+datos$"fdiag_cm"[1]<-"1977.05.05"
+
+datos$"fdiag_cm"<-gsub("[.]","-",datos$"fdiag_cm")
+
+datos$"ID.new" <- paste(datos$"ID",datos$"sexo",sep="-")
+
+datos$"IDnew2" <- paste(datos$"ID","-Madrid",sep="")
+
+
+set.seed(123)
+
+datos$"diagnostico" <- sample(
+  c("Hipertensión arterial",
+    "Diabetes mellitus","Dice que tiene un cáncer",
+    "Colesterol elevado",
+    "Sin diagnóstico",
+    "Obesidad"),
+  size = 200,
+  replace = TRUE
+)
+
+grep("cancer",datos$"diagnostico")
+grep("Cancer",datos$"diagnostico")
+grep("cáncer",datos$"diagnostico")
+grep("Cáncer",datos$"diagnostico")
+grep("tumor",datos$"diagnostico")
+
+datos.cancer <- datos[grep("cáncer",datos$"diagnostico") ,   ]
+
+
+tolower(datos$"diagnostico")
+toupper(datos$"diagnostico")
+
+# genera una variable pasteando todos los valores de las variables
+
+datos$"ID_completo" <- apply(datos, 1, paste, collapse = "_")
+table(duplicated(datos$"ID_completo"))
+
+table(duplicated(datos$"ID"))
+
+datos$"ID_completo" <- apply(datos[,-1], 1, paste, collapse = "_")
+
+
